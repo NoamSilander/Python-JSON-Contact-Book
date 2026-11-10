@@ -1,35 +1,48 @@
 import json
 from pathlib import Path
-
+import sys
 CONTACTS_FILE = Path('contacts.json')
 
-def file_init():
+def file_create():
     if not CONTACTS_FILE.exists():
         print('Creating file...')
-        CONTACTS_FILE.touch()
+        with open(CONTACTS_FILE, 'w', encoding='utf-8') as f:
+            json.dump([], f)
         print(f'Created {CONTACTS_FILE.name}')
         return 'new'
     else:
         print(f'Using existing {CONTACTS_FILE.name}')
         return 'old'
 
-def load_list():
-    contacts = []
-    with open('contacts.json', 'a+', encoding='utf-8') as f:
-        json.dump(contacts, f)
-        try:
-            json.load(f)
-        except json.JSONDecodeError:
+def file_init():
+    not_valid = False
+    status = file_create()
+    if status == 'old':
+        with open(CONTACTS_FILE, encoding='utf-8') as f:
+            try:
+                json.load(f)
+            except json.JSONDecodeError:
+                not_valid = True
+        if not_valid:
             while True:
-                user_wipe = input('Not a valid JSON file. Would you like to wipe it? (y/n): ').lower().strip()
-                match user_wipe:
-                    case y:
+                user_choice = input('Not a valid JSON file! Would you like to wipe it? (y/n): ').lower().strip()
+                match user_choice:
+                    case 'y':
+                        with open(CONTACTS_FILE, 'w', encoding='utf-8') as f:
+                            json.dump([], f)
+                        print('Wiped!')
+                        return
+                    case 'n':
+                        sys.exit('Please fix your JSON file and try again')
+                    case _:
+                        pass
+
 
 def add_contact():
     with open('contacts.json', encoding='utf-8') as f:
         pass
 def main() -> None:
-    load_list()
+    file_init()
     while True:
         user_choice = input('--- Contact Book ---\n1. Add contact\n2. List contacts\n3. Search\n4. Delete contact\n5. Quit\n\nChoose (1-5): ').strip()
         match user_choice:
