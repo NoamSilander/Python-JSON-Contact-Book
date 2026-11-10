@@ -1,9 +1,22 @@
 import json
 from pathlib import Path
 import sys
+
 CONTACTS_FILE = Path('contacts.json')
 
-def file_create():
+def question_manager(question) -> str:
+    contact_question = input(question)
+    while True:
+        user_confirm = input(f'Is {contact_question} correct? (y/n): ').lower().strip()
+        match user_confirm:
+            case 'y':
+                return contact_question
+            case 'n':
+                contact_question = input(question)
+            case _:
+                pass
+
+def file_create() -> str:
     if not CONTACTS_FILE.exists():
         print('Creating file...')
         with open(CONTACTS_FILE, 'w', encoding='utf-8') as f:
@@ -14,7 +27,7 @@ def file_create():
         print(f'Using existing {CONTACTS_FILE.name}')
         return 'old'
 
-def file_init():
+def file_init() -> None:
     not_valid = False
     status = file_create()
     if status == 'old':
@@ -38,16 +51,44 @@ def file_init():
                         pass
 
 
-def add_contact():
-    with open('contacts.json', encoding='utf-8') as f:
-        pass
+def contact_manager():
+    with open(CONTACTS_FILE, encoding='utf-8') as f:
+        contacts = json.load(f)
+    if not contacts:
+        return contacts
+    else:
+        return contacts
+
+def add_contact(contacts):
+    names = []
+    contact_name = question_manager('Name: ')
+    for name in contact_name.split():
+        capital_name = name.capitalize()
+        names.append(capital_name)
+    contact_name = ' '.join(names)
+    print(contact_name)
+
+    while True:
+        contact_email = question_manager('Email: ')
+        if '@' in contact_email and '.' in contact_email:
+            break
+        print('Not a valid Email')
+    
+
+def list_contacts():
+    contacts = contact_manager()
+    if not contacts:
+        print('No contacts added yet')
+        return
+
 def main() -> None:
     file_init()
+    contacts = contact_manager()
     while True:
         user_choice = input('--- Contact Book ---\n1. Add contact\n2. List contacts\n3. Search\n4. Delete contact\n5. Quit\n\nChoose (1-5): ').strip()
         match user_choice:
             case '1':
-                add_contact()
+                add_contact(contacts)
             case '2':
                 list_contacts()
             case '3':
