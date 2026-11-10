@@ -2,6 +2,8 @@ import json
 from pathlib import Path
 import sys
 
+#Continue working on searching and the boldness/italic codes implemented into searching
+
 CONTACTS_FILE = Path('contacts.json')
 
 def question_manager(question: str) -> str:
@@ -81,16 +83,20 @@ def add_contact() -> dict:
             print('Minimum length is four digits')
             continue
         break
-    contact = {'name': contact_name, 'email': contact_email, 'phone': contact_number}
+    contact = {'Name': contact_name, 'Email': contact_email, 'Phone': contact_number}
     return contact
     
     
 
-def list_contacts():
-    contacts = contact_manager()
+def list_contacts(contacts):
     if not contacts:
         print('No contacts added yet')
         return
+    for i, person in enumerate(contacts, 1):
+        print(f'{i}.{'-' * 19}')
+        for category, value in person.items():
+            print(f'{category}: {value}')
+    input(f'{'-' * 20}\nEnter when done: ')
 
 def main() -> None:
     file_init()
@@ -98,12 +104,12 @@ def main() -> None:
     while True:
         with open(CONTACTS_FILE, 'w', encoding='utf-8') as f:
             json.dump(contacts, f)
-        user_choice = input('--- Contact Book ---\n1. Add contact\n2. List contacts\n3. Search\n4. Delete contact\n5. Quit\n\nChoose (1-5): ').strip()
+        user_choice = input('\n--- Contact Book ---\n1. Add contact\n2. List contacts\n3. Search\n4. Delete contact\n5. Quit\n\nChoose (1-5): ').strip()
         match user_choice:
             case '1':
                 contacts.append(add_contact())
             case '2':
-                list_contacts()
+                list_contacts(contacts)
             case '3':
                 search()
             case '4':
