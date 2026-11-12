@@ -3,7 +3,8 @@ from pathlib import Path
 import sys
 
 #Continue working on searching and the boldness/italic codes implemented into searching
-
+UNDERLINED = '\033[4m'
+RESET = '\033[0m'
 CONTACTS_FILE = Path('contacts.json')
 
 def question_manager(question: str) -> str:
@@ -98,6 +99,36 @@ def list_contacts(contacts):
             print(f'{category}: {value}')
     input(f'{'-' * 20}\nEnter when done: ')
 
+def search(contacts):
+    if not contacts:
+        print('Nothing to search from')
+        return
+    while True:
+        user_search = input('What would you like to search for?: ').strip()
+        if not user_search:
+            print('Search must not be empty')
+            continue
+        for i, person in enumerate(contacts, 1):
+            matches = False
+            category_num = 0
+            for category, value in person.items():
+                category_num += 1
+                if user_search in value:
+                    underlined_word = value.replace(user_search, f'{UNDERLINED}{user_search}{RESET}')
+                    print(f'{category}: {underlined_word}\nLocation: {i}, {category_num}')
+                    matches = True
+    if not matches:
+        print('No matches')
+        while True:
+            user_continue = input('Would you like to keep searching? (y/n): ').lower().strip()
+            match user_continue:
+                case 'y':
+                    break
+                case 'n':
+                    return
+                case _:
+                    pass
+
 def main() -> None:
     file_init()
     contacts = contact_manager()
@@ -111,7 +142,7 @@ def main() -> None:
             case '2':
                 list_contacts(contacts)
             case '3':
-                search()
+                search(contacts)
             case '4':
                 delete_contact()
             case '5':
