@@ -2,9 +2,9 @@ import json
 from pathlib import Path
 import sys
 
-#Continue working on searching and the boldness/italic codes implemented into searching
 UNDERLINED = '\033[4m'
 RESET = '\033[0m'
+SEPARATOR = '-' * 20
 CONTACTS_FILE = Path('contacts.json')
 
 def cap_words(text: str) -> str:
@@ -24,6 +24,17 @@ def ask_question(question: str, thing: str) -> str:
             continue
         return user_question
             
+def ask_number_y_to_i(question: str, y: int, i: int) -> int:
+    while True:
+        try:
+            contact_choice = int(input(f'{SEPARATOR}\n{question} ({y}-{i}): '))
+        except ValueError:
+            pass
+        if contact_choice < y or contact_choice > i:
+            print('Choose a valid option')
+            continue
+        return contact_choice
+    
 
 def question_manager(question: str, thing: str) -> str:
     contact_question = ask_question(question, thing)
@@ -80,6 +91,15 @@ def file_init() -> None:
                     case _:
                         pass
 
+def replace_contact(contacts: list):
+    for i, person in enumerate(contacts, 1):
+        print(f'{i}. {person['Name']}')
+    contact_choice = ask_number_y_to_i('Choose a contact', 1, i)
+    for i, (key, value) in enumerate(contacts[contact_choice - 1].items(), 1):
+        print(f'{i}. {key}: {value}')
+    category_choice = ask_number_y_to_i('Choose what to replace', 1, i)
+            
+
 def add_contact() -> dict:
     names = []
     contact_name = question_manager('Name: ', 'Name')
@@ -111,7 +131,7 @@ def list_contacts(contacts):
         print(f'{i}.{'-' * 19}')
         for category, value in person.items():
             print(f'{category}: {value}')
-    input(f'{'-' * 20}\nEnter when done: ')
+    input(f'{SEPARATOR}\nEnter when done: ')
 
 def search(contacts):
     matches = False
@@ -134,7 +154,7 @@ def search(contacts):
                     matches = True
                 elif user_search_capital in value:
                     underlined_word = value.replace(user_search_capital, f'{UNDERLINED}{user_search_capital}{RESET}')
-                    print(f'{category}: {underlined_word}\nLocation: {i}, {category_num}\n{'-' * 20}')
+                    print(f'{category}: {underlined_word}\nLocation: {i}, {category_num}\n{SEPARATOR}')
                     matches = True
         if not matches:
             print('No matches')
@@ -151,7 +171,7 @@ def search(contacts):
 
 def delete_replace_manager(contacts: list):
     while True:
-        user_choice = input(f'{'-' * 20}\n1. Replace contact info\n2. Delete contact\n\nChoose (1-2): ').strip()
+        user_choice = input(f'{SEPARATOR}\n1. Replace contact info\n2. Delete contact\n\nChoose (1-2): ').strip()
         match user_choice:
             case '1':
                 replace_contact(contacts)
@@ -167,21 +187,19 @@ def main() -> None:
     while True:
         with open(CONTACTS_FILE, 'w', encoding='utf-8') as f:
             json.dump(contacts, f)
-        user_choice = input('\n--- Contact Book ---\n1. Add contact\n2. List contacts\n3. Search\n4. Delete/Replace contact\n5. Quit\n\nChoose (1-5): ').strip()
+        user_choice = ask_number_y_to_i(f'\n--- Contact Book ---\n1. Add contact\n2. List contacts\n3. Search\n4. Delete/Replace contact\n5. Quit\n{SEPARATOR}\nChoose', 1, 5)
         match user_choice:
-            case '1':
+            case 1:
                 contacts.append(add_contact())
-            case '2':
+            case 2:
                 list_contacts(contacts)
-            case '3':
+            case 3:
                 search(contacts)
-            case '4':
+            case 4:
                 delete_replace_manager(contacts)
-            case '5':
+            case 5:
                 print('Quitting...')
                 return
-            case _:
-                print('Please choose an option')
 
 if __name__ == '__main__':
     main()
