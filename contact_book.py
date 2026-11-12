@@ -29,7 +29,8 @@ def ask_number_y_to_i(question: str, y: int, i: int) -> int:
         try:
             contact_choice = int(input(f'{SEPARATOR}\n{question} ({y}-{i}): '))
         except ValueError:
-            pass
+            print('Choose a valid option')
+            continue
         if contact_choice < y or contact_choice > i:
             print('Choose a valid option')
             continue
@@ -123,7 +124,7 @@ def add_contact() -> dict:
     
     
 
-def list_contacts(contacts):
+def list_contacts(contacts: list) -> None:
     if not contacts:
         print('No contacts added yet')
         return
@@ -133,16 +134,13 @@ def list_contacts(contacts):
             print(f'{category}: {value}')
     input(f'{SEPARATOR}\nEnter when done: ')
 
-def search(contacts):
+def search(contacts: list) -> None:
     matches = False
     if not contacts:
         print('Nothing to search from')
         return
     while True:
-        user_search = input('What would you like to search for?: ').strip()
-        if not user_search:
-            print('Search must not be empty')
-            continue
+        user_search = ask_question(f'{SEPARATOR}\nWhat would you like to search for?: ', 'Search')
         for i, person in enumerate(contacts, 1):
             category_num = 0
             for category, value in person.items():
@@ -157,7 +155,7 @@ def search(contacts):
                     print(f'{category}: {underlined_word}\nLocation: {i}, {category_num}\n{SEPARATOR}')
                     matches = True
         if not matches:
-            print('No matches')
+            print(f'{SEPARATOR}\nNo matches')
         while True:
             user_continue = input('Would you like to keep searching? (y/n): ').lower().strip()
             match user_continue:
