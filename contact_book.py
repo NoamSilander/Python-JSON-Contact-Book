@@ -38,6 +38,14 @@ def question_manager(question: str, thing: str) -> str:
             case _:
                 pass
 
+def contact_manager() -> list:
+    with open(CONTACTS_FILE, encoding='utf-8') as f:
+        contacts = json.load(f)
+    if not contacts:
+        return contacts
+    else:
+        return contacts
+
 def file_create() -> str:
     if not CONTACTS_FILE.exists():
         print('Creating file...')
@@ -71,15 +79,6 @@ def file_init() -> None:
                         sys.exit('Please fix your JSON file and try again')
                     case _:
                         pass
-
-
-def contact_manager() -> list:
-    with open(CONTACTS_FILE, encoding='utf-8') as f:
-        contacts = json.load(f)
-    if not contacts:
-        return contacts
-    else:
-        return contacts
 
 def add_contact() -> dict:
     names = []
@@ -150,13 +149,25 @@ def search(contacts):
                 case _:
                     pass
 
+def delete_replace_manager(contacts: list):
+    while True:
+        user_choice = input(f'{'-' * 20}\n1. Replace contact info\n2. Delete contact\n\nChoose (1-2): ').strip()
+        match user_choice:
+            case '1':
+                replace_contact(contacts)
+            case '2':
+                delete_contact(contacts)
+            case _:
+                print('Please choose an option')
+
+
 def main() -> None:
     file_init()
     contacts = contact_manager()
     while True:
         with open(CONTACTS_FILE, 'w', encoding='utf-8') as f:
             json.dump(contacts, f)
-        user_choice = input('\n--- Contact Book ---\n1. Add contact\n2. List contacts\n3. Search\n4. Delete contact\n5. Quit\n\nChoose (1-5): ').strip()
+        user_choice = input('\n--- Contact Book ---\n1. Add contact\n2. List contacts\n3. Search\n4. Delete/Replace contact\n5. Quit\n\nChoose (1-5): ').strip()
         match user_choice:
             case '1':
                 contacts.append(add_contact())
@@ -165,7 +176,7 @@ def main() -> None:
             case '3':
                 search(contacts)
             case '4':
-                delete_contact()
+                delete_replace_manager(contacts)
             case '5':
                 print('Quitting...')
                 return
