@@ -7,15 +7,34 @@ UNDERLINED = '\033[4m'
 RESET = '\033[0m'
 CONTACTS_FILE = Path('contacts.json')
 
-def question_manager(question: str) -> str:
-    contact_question = input(question)
+def cap_words(text: str) -> str:
+    words = []
+    text = text.lower()
+    for word in text.split():
+        capital_text = word.capitalize()
+        words.append(capital_text)
+    capped_words = ' '.join(words)
+    return capped_words
+
+def ask_question(question: str, thing: str) -> str:
+    while True:
+        user_question = input(question).strip()
+        if not user_question:
+            print(f'{thing} must not be empty')
+            continue
+        return user_question
+            
+
+def question_manager(question: str, thing: str) -> str:
+    contact_question = ask_question(question, thing)
     while True:
         user_confirm = input(f'Is {contact_question} correct? (y/n): ').lower().strip()
+
         match user_confirm:
             case 'y':
                 return contact_question
             case 'n':
-                contact_question = input(question)
+                contact_question = ask_question(question, thing)
             case _:
                 pass
 
@@ -64,19 +83,15 @@ def contact_manager() -> list:
 
 def add_contact() -> dict:
     names = []
-    contact_name = question_manager('Name: ')
-    contact_name = contact_name.lower()
-    for name in contact_name.split():
-        capital_name = name.capitalize()
-        names.append(capital_name)
-    contact_name = ' '.join(names)
+    contact_name = question_manager('Name: ', 'Name')
+    contact_name = cap_words(contact_name)
     while True:
-        contact_email = question_manager('Email: ')
+        contact_email = question_manager('Email: ', 'Email')
         if '@' in contact_email and '.' in contact_email:
             break
         print('Not a valid Email')
     while True:
-        contact_number = question_manager('Phone: ')
+        contact_number = question_manager('Phone: ', 'Phone')
         if not contact_number.isdigit():
             print('Phone number must only contain digits')
             continue
@@ -100,6 +115,7 @@ def list_contacts(contacts):
     input(f'{'-' * 20}\nEnter when done: ')
 
 def search(contacts):
+    matches = False
     if not contacts:
         print('Nothing to search from')
         return
@@ -109,20 +125,25 @@ def search(contacts):
             print('Search must not be empty')
             continue
         for i, person in enumerate(contacts, 1):
-            matches = False
             category_num = 0
             for category, value in person.items():
                 category_num += 1
+                user_search_capital = cap_words(user_search)
                 if user_search in value:
                     underlined_word = value.replace(user_search, f'{UNDERLINED}{user_search}{RESET}')
                     print(f'{category}: {underlined_word}\nLocation: {i}, {category_num}')
                     matches = True
-    if not matches:
-        print('No matches')
+                elif user_search_capital in value:
+                    underlined_word = value.replace(user_search_capital, f'{UNDERLINED}{user_search_capital}{RESET}')
+                    print(f'{category}: {underlined_word}\nLocation: {i}, {category_num}\n{'-' * 20}')
+                    matches = True
+        if not matches:
+            print('No matches')
         while True:
             user_continue = input('Would you like to keep searching? (y/n): ').lower().strip()
             match user_continue:
                 case 'y':
+                    matches = False
                     break
                 case 'n':
                     return
